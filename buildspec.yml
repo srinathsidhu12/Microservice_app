@@ -47,6 +47,8 @@ phases:
 
   build:
     commands:
+      - echo "Installing parent POM"
+      - mvn -B -f pom.xml clean install -DskipTests
       - echo "Starting build for all microservices"
 
       # Define microservices list
