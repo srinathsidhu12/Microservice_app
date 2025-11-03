@@ -21,7 +21,7 @@
 
   <properties>
     <java.version>11</java.version>
-    <spring.boot.version>2.7.3</spring.boot.version>
+    <spring.boot.version>2.1.18.RELEASE</spring.boot.version>
   </properties>
 
   <!-- 🔹 AWS CodeArtifact Repositories -->
