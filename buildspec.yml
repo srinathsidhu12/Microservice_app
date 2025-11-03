@@ -53,7 +53,7 @@ phases:
 
       # Define microservices list
       - |
-        SERVICES=("catalog" "customer" "order" "httpd")
+        SERVICES=("catalog" "customer" "order" "apache")
 
         # Loop through each microservice
         for SERVICE_NAME in "${SERVICES[@]}"; do
@@ -62,7 +62,7 @@ phases:
           echo "==============================";
           cd $SERVICE_NAME;
 
-          if [ "$SERVICE_NAME" != "httpd" ]; then
+          if [ "$SERVICE_NAME" != "apache" ]; then
            echo "Building and packaging with Maven";
            mvn -B -DskipTests package;
            mvn -B -DskipTests deploy;
