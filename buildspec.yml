@@ -20,11 +20,13 @@ phases:
   pre_build:
     commands:
       - echo "Authenticate with CodeArtifact"
-      - export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token \
+      - |
+        export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token \
           --domain $CODEARTIFACT_DOMAIN \
           --domain-owner $CODEARTIFACT_DOMAIN_OWNER \
           --query authorizationToken \
-          --output text --region $AWS_REGION)
+          --output text \
+          --region $AWS_REGION)
 
       - |
         mkdir -p ~/.m2
