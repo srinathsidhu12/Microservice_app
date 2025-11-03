@@ -26,8 +26,9 @@ phases:
           --query authorizationToken \
           --output text --region $AWS_REGION)
 
-      - mkdir -p ~/.m2
-      - cat > ~/.m2/settings.xml <<EOF
+      - |
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml <<'EOF'
         <settings>
           <servers>
             <server>
