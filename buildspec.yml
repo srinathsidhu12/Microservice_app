@@ -53,7 +53,7 @@ phases:
 
       # Define microservices list
       - |
-        SERVICES=("catalog" "customer" "order")
+        SERVICES=("catalog" "customer" "order" "httpd")
 
         # Loop through each microservice
         for SERVICE_NAME in "${SERVICES[@]}"; do
@@ -62,22 +62,18 @@ phases:
           echo "==============================";
           cd $SERVICE_NAME;
 
-          echo "Building and packaging with Maven";
-          mvn -B -DskipTests package;
-
-          echo "Publishing JAR to CodeArtifact";
-          mvn -B -DskipTests deploy;
+          if [ "$SERVICE_NAME" != "httpd" ]; then
+           echo "Building and packaging with Maven";
+           mvn -B -DskipTests package;
+           mvn -B -DskipTests deploy;
+          fi
 
           echo "Building Docker image";
           IMAGE_TAG=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE_NAME}:build-${CODEBUILD_BUILD_NUMBER};
           docker build -t $IMAGE_TAG .;
-
-          echo "Pushing Docker image to ECR";
           docker push $IMAGE_TAG;
 
-          echo "Creating imagedefinitions.json for $SERVICE_NAME";
           printf '[{"name":"%s","imageUri":"%s"}]' "$SERVICE_NAME" "$IMAGE_TAG" > ../${SERVICE_NAME}-imagedefinitions.json;
-
           cd ..;
         done
 
