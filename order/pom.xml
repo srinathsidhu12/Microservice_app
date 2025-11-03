@@ -5,24 +5,10 @@
 
 	<parent>
 		<groupId>com.ewolff</groupId>
-		<artifactId>microservice-kubernetes-demo</artifactId>
+		<artifactId>microservice</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-
-	<artifactId>microservice-kubernetes-demo-order</artifactId>
-	<repositories>
-           <!-- AWS CodeArtifact repository -->
-           <repository>
-              <id>codeartifact</id>
-              <url>https://microservice-654654304213.d.codeartifact.ap-south-1.amazonaws.com/maven/micro-service-app/</url>
-           </repository>
-        </repositories>
-        <distributionManagement>
-          <repository>
-            <id>codeartifact</id>
-            <url>https://microservice-654654304213.d.codeartifact.ap-south-1.amazonaws.com/maven/micro-service-app/</url>
-          </repository>
-        </distributionManagement>
 
 	<dependencies>
 
