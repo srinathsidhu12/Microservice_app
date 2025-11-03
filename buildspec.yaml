@@ -1,0 +1,88 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "ap-south-1"                    #Region
+    AWS_ACCOUNT_ID: "654654304213"              #AWS account ID
+    CODEARTIFACT_DOMAIN: "microservice"         #CodeArtifact domain
+    CODEARTIFACT_DOMAIN_OWNER: "654654304213"   #usually same as account ID
+    CODEARTIFACT_REPO: "maven-repo"
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+      docker: 19
+    commands:
+      - echo "Install phase"
+      - aws --version
+
+  pre_build:
+    commands:
+      - echo "Authenticate with CodeArtifact"
+      - export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token \
+          --domain $CODEARTIFACT_DOMAIN \
+          --domain-owner $CODEARTIFACT_DOMAIN_OWNER \
+          --query authorizationToken \
+          --output text --region $AWS_REGION)
+
+      - mkdir -p ~/.m2
+      - cat > ~/.m2/settings.xml <<EOF
+        <settings>
+          <servers>
+            <server>
+              <id>codeartifact</id>
+              <username>aws</username>
+              <password>${CODEARTIFACT_AUTH_TOKEN}</password>
+            </server>
+          </servers>
+        </settings>
+        EOF
+
+      - echo "Authenticate Docker with ECR"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+  build:
+    commands:
+      - echo "Starting build for all microservices"
+
+      # Define microservices list
+      - SERVICES=("catalog" "customer" "order")
+
+      # Loop through each microservice
+      - for SERVICE_NAME in "${SERVICES[@]}"; do
+          echo "==============================";
+          echo "Building service: $SERVICE_NAME";
+          echo "==============================";
+          cd $SERVICE_NAME;
+
+          echo "Building and packaging with Maven";
+          mvn -B -DskipTests package;
+
+          echo "Publishing JAR to CodeArtifact";
+          mvn -B -DskipTests deploy;
+
+          echo "Building Docker image";
+          IMAGE_TAG=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE_NAME}:$CODEBUILD_RESOLVED_SOURCE_VERSION;
+          docker build -t $IMAGE_TAG .;
+
+          echo "Pushing Docker image to ECR";
+          docker push $IMAGE_TAG;
+
+          echo "Creating imagedefinitions.json for $SERVICE_NAME";
+          printf '[{"name":"%s","imageUri":"%s"}]' "$SERVICE_NAME" "$IMAGE_TAG" > ../${SERVICE_NAME}-imagedefinitions.json;
+
+          cd ..;
+        done
+
+  post_build:
+    commands:
+      - echo "All builds completed successfully"
+      - ls -l
+
+artifacts:
+  files:
+    - catalog-imagedefinitions.json
+    - customer-imagedefinitions.json
+    - order-imagedefinitions.json
+
