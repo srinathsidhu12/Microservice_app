@@ -5,10 +5,11 @@
 
 	<parent>
 		<groupId>com.ewolff</groupId>
-		<artifactId>microservice</artifactId>
+		<artifactId>microservice-kubernetes-demo</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	<artifactId>microservice-kubernetes-demo-customer</artifactId>
 
 	<dependencies>
 
