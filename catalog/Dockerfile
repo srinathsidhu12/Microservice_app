@@ -1,4 +1,4 @@
 FROM openjdk:11.0.2-jre-slim
-COPY target/microservice-kubernetes-demo-catalog-0.0.1-SNAPSHOT.jar .
-CMD /usr/bin/java -Xmx400m -Xms400m -jar microservice-kubernetes-demo-catalog-0.0.1-SNAPSHOT.jar
+COPY target/catalog-service-0.0.1-SNAPSHOT.jar app.jar
+CMD /usr/bin/java -Xmx400m -Xms400m -jar app.jar
 EXPOSE 8080
