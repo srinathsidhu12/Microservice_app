@@ -10,7 +10,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>microservice-kubernetes-demo-catalog</artifactId>
+	<artifactId>catalog-service</artifactId>
 
 	<dependencies>
 

@@ -7,7 +7,7 @@
 
   <groupId>com.ewolff</groupId>
   <artifactId>microservice-kubernetes-demo</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -29,6 +29,8 @@
     <repository>
       <id>codeartifact</id>
       <url>https://microservice-654654304213.d.codeartifact.ap-south-1.amazonaws.com/maven/micro-service-app/</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
     </repository>
   </repositories>
 
