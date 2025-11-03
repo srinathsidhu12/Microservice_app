@@ -12,10 +12,10 @@ phases:
   install:
     runtime-versions:
       java: corretto11
-      docker: 19
     commands:
       - echo "Install phase"
       - aws --version
+      - docker --version
 
   pre_build:
     commands:
