@@ -51,7 +51,8 @@ phases:
       - SERVICES=("catalog" "customer" "order")
 
       # Loop through each microservice
-      - for SERVICE_NAME in "${SERVICES[@]}"; do
+      - |
+        for SERVICE_NAME in "${SERVICES[@]}"; do
           echo "==============================";
           echo "Building service: $SERVICE_NAME";
           echo "==============================";
