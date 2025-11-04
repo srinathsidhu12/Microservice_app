@@ -19,4 +19,9 @@ spec:
         image: IMAGE_URI    # replaced dynamically
         ports:
         - containerPort: 8080
+        env:
+          - name: CATALOG_HOST
+            value: "catalog"
+          - name: CUSTOMER_HOST
+            value: "customer"
 

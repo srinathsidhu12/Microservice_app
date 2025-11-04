@@ -5,41 +5,55 @@ env:
     AWS_REGION: "ap-south-1"
     CLUSTER_NAME: "microservice-eks-cluster"
     AWS_ACCOUNT_ID: "654654304213"
-    SERVICES: "catalog customer order apache"
+    TAG: "build-${CODEBUILD_BUILD_NUMBER}"
 
 phases:
   install:
     commands:
-      - echo "Installing kubectl"
+      - echo "Installing kubectl..."
       - curl -o kubectl -L "https://amazon-eks.s3.us-west-2.amazonaws.com/1.30.0/2024-05-31/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/kubectl
-      - echo "Verifying kubectl installation..."
       - kubectl version --client
 
   pre_build:
     commands:
-      - echo "=== Configuring access to EKS ==="
+      - echo "Configuring kubectl with EKS cluster..."
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      - echo "Connected to EKS cluster: $CLUSTER_NAME"
+      - kubectl cluster-info
 
   build:
     commands:
-      - echo "=== Deploying services to EKS ==="
-      - echo "Services to deploy: $SERVICES"
-      - for SERVICE in $SERVICES; do
-          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:build-${CODEBUILD_BUILD_NUMBER}";
-          echo "Deploying $SERVICE with image $IMAGE_URI";
-          sed -i "s|IMAGE_URI|$IMAGE_URI|g" k8s/${SERVICE}-deployment.yaml;
-          kubectl apply -f k8s/${SERVICE}-deployment.yaml;
-          kubectl apply -f k8s/${SERVICE}-service.yaml;
-        done
+      - echo "Deploying catalog service..."
+      - CATALOG_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/catalog:$TAG"
+      - sed -i "s|IMAGE_URI|$CATALOG_IMAGE|g" k8s/catalog-deployment.yaml
+      - kubectl apply -f k8s/catalog-deployment.yaml
+      - kubectl apply -f k8s/catalog-service.yaml
+
+      - echo "Deploying customer service..."
+      - CUSTOMER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/customer:$TAG"
+      - sed -i "s|IMAGE_URI|$CUSTOMER_IMAGE|g" k8s/customer-deployment.yaml
+      - kubectl apply -f k8s/customer-deployment.yaml
+      - kubectl apply -f k8s/customer-service.yaml
+
+      - echo "Deploying order service..."
+      - ORDER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/order:$TAG"
+      - sed -i "s|IMAGE_URI|$ORDER_IMAGE|g" k8s/order-deployment.yaml
+      - kubectl apply -f k8s/order-deployment.yaml
+      - kubectl apply -f k8s/order-service.yaml
+
+      - echo "Deploying apache service..."
+      - APACHE_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/apache:$TAG"
+      - sed -i "s|IMAGE_URI|$APACHE_IMAGE|g" k8s/apache-deployment.yaml
+      - kubectl apply -f k8s/apache-deployment.yaml
+      - kubectl apply -f k8s/apache-service.yaml
 
   post_build:
     commands:
-      - echo "=== Verifying deployments ==="
+      - echo "Verifying deployments..."
       - kubectl get pods -o wide
       - kubectl get svc -o wide
+      - echo "Deployment completed successfully!"
 
 artifacts:
   files:
