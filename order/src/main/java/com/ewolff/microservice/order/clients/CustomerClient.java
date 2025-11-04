@@ -35,8 +35,8 @@ public class CustomerClient {
 	}
 
 	@Autowired
-	public CustomerClient(@Value("${customer.service.host:customer}") String customerServiceHost,
-			@Value("${customer.service.port:8080}") long customerServicePort) {
+	public CustomerClient(@Value("${ORDER_CUSTOMER_HOST:customer}") String customerServiceHost,
+			@Value("${ORDER_CUSTOMER_PORT:8080}") long customerServicePort) {
 		super();
 		this.restTemplate = getRestTemplate();
 		this.customerServiceHost = customerServiceHost;
