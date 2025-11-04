@@ -22,6 +22,10 @@ spec:
         env:
           - name: CATALOG_HOST
             value: "catalog"
+          - name: CATALOG_PORT
+            value: "8080"
           - name: CUSTOMER_HOST
             value: "customer"
+          - name: CUSTOMER_PORT
+            value: "8080"
 
