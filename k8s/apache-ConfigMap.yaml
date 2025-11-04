@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-config
+data:
+  httpd.conf: |
+    ServerName localhost
+
+    LoadModule proxy_module modules/mod_proxy.so
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+
+    <VirtualHost *:80>
+        ProxyRequests Off
+        ProxyPreserveHost On
+
+        ProxyPass /catalog http://catalog:8080/
+        ProxyPassReverse /catalog http://catalog:8080/
+
+        ProxyPass /customer http://customer:8080/
+        ProxyPassReverse /customer http://customer:8080/
+
+        ProxyPass /order http://order:8080/
+        ProxyPassReverse /order http://order:8080/
+    </VirtualHost>
+
