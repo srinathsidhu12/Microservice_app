@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: apache
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: apache
   ports:
