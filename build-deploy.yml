@@ -25,13 +25,14 @@ phases:
   build:
     commands:
       - echo "Deploying services..."
-      - bash -c 'for SERVICE in $SERVICES; do
-          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:build-${CODEBUILD_BUILD_NUMBER}";
-          echo "Deploying $SERVICE with image $IMAGE_URI";
-          sed -i "s|IMAGE_URI|$IMAGE_URI|g" k8s/${SERVICE}-deployment.yaml;
-          kubectl apply -f k8s/${SERVICE}-deployment.yaml;
-          kubectl apply -f k8s/${SERVICE}-service.yaml;
-        done'
+      - |
+        for SERVICE in $SERVICES; do
+          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE}:build-${CODEBUILD_BUILD_NUMBER}"
+          echo "Deploying $SERVICE with image $IMAGE_URI"
+          sed -i "s|IMAGE_URI|$IMAGE_URI|g" k8s/${SERVICE}-deployment.yaml
+          kubectl apply -f k8s/${SERVICE}-deployment.yaml
+          kubectl apply -f k8s/${SERVICE}-service.yaml
+        done
 
   post_build:
     commands:
@@ -42,3 +43,4 @@ phases:
 artifacts:
   files:
     - "**/*"
+
