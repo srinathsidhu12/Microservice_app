@@ -14,14 +14,14 @@ phases:
       - curl -o kubectl -L "https://amazon-eks.s3.us-west-2.amazonaws.com/1.30.0/2024-05-31/bin/linux/amd64/kubectl"
       - chmod +x kubectl
       - mv kubectl /usr/local/bin/kubectl
-      - echo "Kubectl installed successfully: $(kubectl version --client)"
+      - echo "Verifying kubectl installation..."
+      - kubectl version --client
 
   pre_build:
     commands:
-      - echo "Verifying kubectl installation..."
-      - kubectl version --client
       - echo "=== Configuring access to EKS ==="
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - echo "Connected to EKS cluster: $CLUSTER_NAME"
 
   build:
     commands:
