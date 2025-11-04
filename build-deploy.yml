@@ -9,6 +9,8 @@ env:
 
 phases:
   install:
+    runtime-versions:
+      docker: 20
     commands:
       - echo "Installing kubectl"
       - curl -o kubectl -L "https://amazon-eks.s3.us-west-2.amazonaws.com/1.30.0/2024-05-31/bin/linux/amd64/kubectl"
@@ -27,8 +29,7 @@ phases:
     commands:
       - echo "=== Deploying services to EKS ==="
       - echo "Services to deploy: $SERVICES"
-      - bash -c "for SERVICE_NAME in $SERVICES; do IMAGE_URI='${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE_NAME}:build-${CODEBUILD_BUILD_NUMBER}'; echo 'Updating image for ${SERVICE_NAME} -> ${IMAGE_URI}'; sed -i \"s|IMAGE_URI|${IMAGE_URI}|g\" k8s/${SERVICE_NAME}-deployment.yaml; echo 'Applying manifests for ${SERVICE_NAME}'; kubectl apply -f k8s/${SERVICE_NAME}-deployment.yaml; kubectl apply -f k8s/${SERVICE_NAME}-service.yaml; done"
-
+      - bash -c "for SERVICE_NAME in $SERVICES; do IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE_NAME}:build-${CODEBUILD_BUILD_NUMBER}; echo Updating image for ${SERVICE_NAME} to ${IMAGE_URI}; sed -i \"s|IMAGE_URI|${IMAGE_URI}|g\" k8s/${SERVICE_NAME}-deployment.yaml; kubectl apply -f k8s/${SERVICE_NAME}-deployment.yaml; kubectl apply -f k8s/${SERVICE_NAME}-service.yaml; done"
 
   post_build:
     commands:
