@@ -26,16 +26,15 @@ phases:
   build:
     commands:
       - echo "=== Deploying services to EKS ==="
-      - bash -c '
-        for SERVICE_NAME in $SERVICES; do
+      - echo "Services to deploy: $SERVICES"
+      - bash -c "for SERVICE_NAME in $SERVICES; do
           IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${SERVICE_NAME}:build-${CODEBUILD_BUILD_NUMBER}"
           echo "Updating image for $SERVICE_NAME -> $IMAGE_URI"
           sed -i "s|IMAGE_URI|$IMAGE_URI|g" k8s/${SERVICE_NAME}-deployment.yaml
           echo "Applying Kubernetes manifests for $SERVICE_NAME"
           kubectl apply -f k8s/${SERVICE_NAME}-deployment.yaml
           kubectl apply -f k8s/${SERVICE_NAME}-service.yaml
-        done
-      '
+        done"
 
   post_build:
     commands:
