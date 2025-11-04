@@ -5,7 +5,6 @@ env:
     AWS_REGION: "ap-south-1"
     CLUSTER_NAME: "microservice-eks-cluster"
     AWS_ACCOUNT_ID: "654654304213"
-    TAG: "build-${CODEBUILD_BUILD_NUMBER}"
 
 phases:
   install:
@@ -16,9 +15,19 @@ phases:
       - mv kubectl /usr/local/bin/kubectl
       - kubectl version --client
 
-
   pre_build:
     commands:
+      - echo "Fetching latest image tags from ECR..."
+      - CATALOG_TAG=$(aws ecr describe-images --repository-name catalog --region $AWS_REGION --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+      - CUSTOMER_TAG=$(aws ecr describe-images --repository-name customer --region $AWS_REGION --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+      - ORDER_TAG=$(aws ecr describe-images --repository-name order --region $AWS_REGION --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+      - APACHE_TAG=$(aws ecr describe-images --repository-name apache --region $AWS_REGION --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+
+      - echo "Catalog tag: $CATALOG_TAG"
+      - echo "Customer tag: $CUSTOMER_TAG"
+      - echo "Order tag: $ORDER_TAG"
+      - echo "Apache tag: $APACHE_TAG"
+
       - echo "Configuring kubectl with EKS cluster..."
       - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
       - kubectl cluster-info
@@ -26,25 +35,25 @@ phases:
   build:
     commands:
       - echo "Deploying catalog service..."
-      - CATALOG_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/catalog:$TAG"
+      - CATALOG_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/catalog:$CATALOG_TAG"
       - sed -i "s|IMAGE_URI|$CATALOG_IMAGE|g" k8s/catalog-deployment.yaml
       - kubectl apply -f k8s/catalog-deployment.yaml
       - kubectl apply -f k8s/catalog-service.yaml
 
       - echo "Deploying customer service..."
-      - CUSTOMER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/customer:$TAG"
+      - CUSTOMER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/customer:$CUSTOMER_TAG"
       - sed -i "s|IMAGE_URI|$CUSTOMER_IMAGE|g" k8s/customer-deployment.yaml
       - kubectl apply -f k8s/customer-deployment.yaml
       - kubectl apply -f k8s/customer-service.yaml
 
       - echo "Deploying order service..."
-      - ORDER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/order:$TAG"
+      - ORDER_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/order:$ORDER_TAG"
       - sed -i "s|IMAGE_URI|$ORDER_IMAGE|g" k8s/order-deployment.yaml
       - kubectl apply -f k8s/order-deployment.yaml
       - kubectl apply -f k8s/order-service.yaml
 
       - echo "Deploying apache service..."
-      - APACHE_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/apache:$TAG"
+      - APACHE_IMAGE="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/apache:$APACHE_TAG"
       - sed -i "s|IMAGE_URI|$APACHE_IMAGE|g" k8s/apache-deployment.yaml
       - kubectl apply -f k8s/apache-deployment.yaml
       - kubectl apply -f k8s/apache-service.yaml
