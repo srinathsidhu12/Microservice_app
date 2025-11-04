@@ -48,7 +48,7 @@ phases:
       - echo " order:   $LATEST_ORDER_TAG"
       - echo " apache:  $LATEST_APACHE_TAG"
 
-      # fail fast if any tag missing (you can remove this check if you want partial deploy)
+      # fail fast if any tag missing
       - if [ "$LATEST_CATALOG_TAG" = "None" ] || [ -z "$LATEST_CATALOG_TAG" ] || [ "$LATEST_CATALOG_TAG" = "null" ]; then echo "ERROR: catalog latest tag not found in ECR"; exit 1; fi
       - if [ "$LATEST_CUSTOMER_TAG" = "None" ] || [ -z "$LATEST_CUSTOMER_TAG" ] || [ "$LATEST_CUSTOMER_TAG" = "null" ]; then echo "ERROR: customer latest tag not found in ECR"; exit 1; fi
       - if [ "$LATEST_ORDER_TAG" = "None" ] || [ -z "$LATEST_ORDER_TAG" ] || [ "$LATEST_ORDER_TAG" = "null" ]; then echo "ERROR: order latest tag not found in ECR"; exit 1; fi
