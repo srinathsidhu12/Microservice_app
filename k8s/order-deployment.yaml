@@ -21,10 +21,10 @@ spec:
         - containerPort: 8080
         env:
           - name: ORDER_CATALOG_HOST
-            value: "catalog"
+            value: "catalog-service"
           - name: ORDER_CATALOG_PORT
             value: "8080"
           - name: ORDER_CUSTOMER_HOST
-            value: "customer"
+            value: "customer-service"
           - name: ORDER_CUSTOMER_PORT
             value: "8080"
